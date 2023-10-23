@@ -1,18 +1,22 @@
-"""Module for validating email adresses."""
+"""Module for extracting and validating email addresses."""
 from os import listdir
-import helpers
+import docx2txt
+import re
 
-email_addresses = []  # list of email addresses to be validated.
 
-# Extract the path to each word document and extract addresses
 for filename in listdir("../data/activities/"):
-    # concatenate file name with directory path
-    path = "../data/activities/" + filename
+    # define path to each activities document
+    doc_path = "../data/activities/" + filename
 
-    # extract email address from word document at path
-    email_address = helpers.extract_address(path)
+    try:
+        # extract all text from word document at path
+        search_string = docx2txt.process(doc_path)
 
-    # validate email address
-    is_valid = helpers.validate(email_address)
+        # search for email in text
+        pattern = "[A-Za-z0-9.+\-_]+@[A-Za-z0-9.+\-_]+[A-Za-z]{2,}"  # regular expression for email
+        matches = re.search(pattern, search_string)
+        email_address = matches.group(0)
+        print(email_address, doc_path)
 
-    print(is_valid, email_address)
+    except Exception as exception:
+        print("Error found at:", filename)
